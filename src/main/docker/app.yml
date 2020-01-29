@@ -1,0 +1,53 @@
+version: '2'
+services:
+  jhipsterreactmongo-app:
+    image: jhipsterreactmongo
+    environment:
+      - _JAVA_OPTIONS=-Xmx512m -Xms256m
+      - SPRING_PROFILES_ACTIVE=prod,swagger
+      - MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_PORT=8500
+      - SPRING_DATA_MONGODB_URI=mongodb://jhipsterreactmongo-mongodb:27017
+      - SPRING_DATA_MONGODB_DATABASE=jhipsterReactMongo
+      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI=http://keycloak:9080/auth/realms/jhipster
+      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID=web_app
+      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET=web_app
+      - JHIPSTER_SLEEP=30 # gives time for other services to boot before the application
+      - SPRING_DATA_JEST_URI=http://jhipsterreactmongo-elasticsearch:9200
+      - SPRING_ELASTICSEARCH_REST_URIS=http://jhipsterreactmongo-elasticsearch:9200
+      - KAFKA_BOOTSTRAPSERVERS=kafka:9092
+    ports:
+      - 8080:8080
+  jhipsterreactmongo-mongodb:
+    extends:
+      file: mongodb.yml
+      service: jhipsterreactmongo-mongodb
+  jhipsterreactmongo-elasticsearch:
+    extends:
+      file: elasticsearch.yml
+      service: jhipsterreactmongo-elasticsearch
+  kafka:
+    extends:
+      file: kafka.yml
+      service: kafka
+    environment:
+      - KAFKA_ADVERTISED_HOST_NAME=kafka
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+  zookeeper:
+    extends:
+      file: kafka.yml
+      service: zookeeper
+  consul:
+    extends:
+      file: consul.yml
+      service: consul
+
+  consul-config-loader:
+    extends:
+      file: consul.yml
+      service: consul-config-loader
+  keycloak:
+    extends:
+      file: keycloak.yml
+      service: keycloak
